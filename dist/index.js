@@ -18,6 +18,9 @@ app.use("/api/book", book_route_1.default);
 app.get('/ping', (req, res) => {
     res.send('pong 🏓');
 });
+app.get('/hello', (req, res) => {
+    res.send('Hello Pong 🏓');
+});
 app.get("*", (req, res) => {
     res.send("404");
 });
