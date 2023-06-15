@@ -20,6 +20,7 @@
   },
   "homepage": "https://gitlab.com/tamvo0610/hani-store-api#readme",
   "dependencies": {
+    "@hokify/agenda": "^6.3.0",
     "@typegoose/typegoose": "^11.2.0",
     "argon2": "^0.30.3",
     "bcryptjs": "^2.4.3",
@@ -28,6 +29,7 @@
     "express-validator": "^7.0.1",
     "jsonwebtoken": "^9.0.0",
     "mongoose": "^7.2.0",
+    "telegraf": "^4.12.2",
     "zod": "^3.21.4"
   },
   "devDependencies": {

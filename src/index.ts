@@ -1,9 +1,8 @@
 import express, { Request, Response } from "express";
-import authenRouter from "./router/authen.route";
-import bookRouter from './router/book.route'
-import { connectMongoose } from "./util/connectDb";
+import { connectMongoose, connectAgenda, connectTelegramBot } from "./util";
 import dotenv from "dotenv";
-dotenv.config()
+import { MorningAgenda } from "./modules";
+dotenv.config();
 
 const app = express();
 const port = 3000;
@@ -11,30 +10,34 @@ const port = 3000;
 app.use(express.json());
 // app.use(express.urlencoded({ extended: false }));
 
-app.use("/api/authen", authenRouter);
-
-app.use("/api/book", bookRouter);
-
-app.get('/ping', (req, res) => {
-  res.send('pong 🏓')
-})
-
-app.get('/hello', (req, res) => {
-  res.send('Hello Pong 🏓')
-})
+app.get("/", (req, res) => {
+  res.send("Hello OOP Team 🏓");
+});
 
 app.get("*", (req, res) => {
   res.send("404");
 });
 
-connectMongoose()
-  .then(() => {
-    console.log("Mongoose Connect Success");
+(async () => {
+  try {
+    await connectMongoose();
     app.listen(port, () => {
+      connectTelegramBot().then((telegramBot) => {
+        connectAgenda().then((agenda) => {
+          if (!telegramBot) return;
+          const _morning = new MorningAgenda(agenda);
+          agenda?.start();
+          _morning.runAgenda({
+            processor: () => {
+              telegramBot.telegram.sendMessage(telegramBot.chat_Id, "Dwqdqwdw");
+            },
+          });
+        });
+      });
       console.log(`Ditconmemay app is running on http://localhost:${port}`);
     });
-  })
-  .catch((err: any) => {
-    console.log("Mongoose Connect Error", err);
+  } catch (error) {
+    console.log("Mongoose Connect Error", error);
     process.exit(1);
-  });
+  }
+})();
