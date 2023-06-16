@@ -42,5 +42,9 @@
     "morgan": "^1.10.0",
     "nodemon": "^2.0.22",
     "typescript": "^5.0.4"
+  },
+  "engines": {
+    "node": "17.0",
+    "npm": "8.1"
   }
 }

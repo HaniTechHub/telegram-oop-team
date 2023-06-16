@@ -1,5 +1,5 @@
-import express, { Request, Response } from "express";
-import { connectMongoose, connectAgenda, connectTelegramBot } from "./util";
+import express from "express";
+import { connectTelegramBot } from "./util";
 import dotenv from "dotenv";
 import { AgendaService } from "./modules";
 import { TelegramCommand } from "./modules/telegram.module";
@@ -28,15 +28,15 @@ app.listen(port, () => {
     },
     async (agenda, bot) => {
       const _morning = new AgendaService(agenda, bot, {
-        type: 'schedule',
+        type: "schedule",
         key: "send morning",
         text: "Test Ne",
-        time: "today at 02:47AM"
+        time: "today at 02:47AM",
       });
       _morning.define();
       (async () => {
         await agenda.start();
-        await _morning.start()
+        await _morning.start();
       })();
     }
   );
