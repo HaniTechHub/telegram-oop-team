@@ -16,6 +16,7 @@ const express_1 = __importDefault(require("express"));
 const util_1 = require("./util");
 const dotenv_1 = __importDefault(require("dotenv"));
 const modules_1 = require("./modules");
+const telegram_module_1 = require("./modules/telegram.module");
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 const port = 3000;
@@ -27,28 +28,22 @@ app.get("/", (req, res) => {
 app.get("*", (req, res) => {
     res.send("404");
 });
-(() => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        yield (0, util_1.connectMongoose)();
-        app.listen(port, () => {
-            (0, util_1.connectTelegramBot)().then((telegramBot) => {
-                (0, util_1.connectAgenda)().then((agenda) => {
-                    if (!telegramBot)
-                        return;
-                    const _morning = new modules_1.MorningAgenda(agenda);
-                    agenda === null || agenda === void 0 ? void 0 : agenda.start();
-                    _morning.runAgenda({
-                        processor: () => {
-                            telegramBot.telegram.sendMessage(telegramBot.chat_Id, "Dwqdqwdw");
-                        },
-                    });
-                });
-            });
-            console.log(`Ditconmemay app is running on http://localhost:${port}`);
+app.listen(port, () => {
+    console.log(`Ditconmemay app is running on http://localhost:${port}`);
+    (0, util_1.connectTelegramBot)((bot) => {
+        const _teleCommand = new telegram_module_1.TelegramCommand(bot);
+        _teleCommand.startTelegramCommand();
+    }, (agenda, bot) => __awaiter(void 0, void 0, void 0, function* () {
+        const _morning = new modules_1.AgendaService(agenda, bot, {
+            type: 'schedule',
+            key: "send morning",
+            text: "Test Ne",
+            time: "today at 02:47AM"
         });
-    }
-    catch (error) {
-        console.log("Mongoose Connect Error", error);
-        process.exit(1);
-    }
-}))();
+        _morning.define();
+        (() => __awaiter(void 0, void 0, void 0, function* () {
+            yield agenda.start();
+            yield _morning.start();
+        }))();
+    }));
+});

@@ -1,1 +1,1 @@
-export * from './morning'
+export * from './agenda.module'

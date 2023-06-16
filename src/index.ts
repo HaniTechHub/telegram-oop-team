@@ -1,7 +1,8 @@
 import express, { Request, Response } from "express";
 import { connectMongoose, connectAgenda, connectTelegramBot } from "./util";
 import dotenv from "dotenv";
-import { MorningAgenda } from "./modules";
+import { AgendaService } from "./modules";
+import { TelegramCommand } from "./modules/telegram.module";
 dotenv.config();
 
 const app = express();
@@ -18,26 +19,25 @@ app.get("*", (req, res) => {
   res.send("404");
 });
 
-(async () => {
-  try {
-    await connectMongoose();
-    app.listen(port, () => {
-      connectTelegramBot().then((telegramBot) => {
-        connectAgenda().then((agenda) => {
-          if (!telegramBot) return;
-          const _morning = new MorningAgenda(agenda);
-          agenda?.start();
-          _morning.runAgenda({
-            processor: () => {
-              telegramBot.telegram.sendMessage(telegramBot.chat_Id, "Dwqdqwdw");
-            },
-          });
-        });
+app.listen(port, () => {
+  console.log(`Ditconmemay app is running on http://localhost:${port}`);
+  connectTelegramBot(
+    (bot) => {
+      const _teleCommand = new TelegramCommand(bot);
+      _teleCommand.startTelegramCommand();
+    },
+    async (agenda, bot) => {
+      const _morning = new AgendaService(agenda, bot, {
+        type: 'schedule',
+        key: "send morning",
+        text: "Test Ne",
+        time: "today at 02:47AM"
       });
-      console.log(`Ditconmemay app is running on http://localhost:${port}`);
-    });
-  } catch (error) {
-    console.log("Mongoose Connect Error", error);
-    process.exit(1);
-  }
-})();
+      _morning.define();
+      (async () => {
+        await agenda.start();
+        await _morning.start()
+      })();
+    }
+  );
+});
